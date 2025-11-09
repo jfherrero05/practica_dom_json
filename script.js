@@ -221,14 +221,18 @@ document.body.appendChild(tarjetaOriginal);
 Crea un botón “Agregar elemento” que añada un nuevo <li> a una lista cada vez que se
 pulsa.
 */
-const lista = document.createElement("ul");
-document.body.appendChild(lista);
+const listaDinamica2 = document.createElement("ul");
+listaDinamica2.className = "list-group my-3";
+document.body.appendChild(listaDinamica2);
 const botonAgregar = document.createElement("button");
+botonAgregar.className = "btn btn-primary mb-3";
 botonAgregar.textContent = "Agregar elemento";
+let contador = 1;
 botonAgregar.addEventListener("click", () => {
-  const nuevoElemento = document.createElement("li");
-  nuevoElemento.textContent = "Elemento " + (lista.children.length + 1);
-  lista.appendChild(nuevoElemento);
+  const nuevoItem = document.createElement("li");
+  nuevoItem.className = "list-group-item";
+  nuevoItem.textContent = `Elemento ${contador++}`;
+  listaDinamica2.appendChild(nuevoItem);
 });
 document.body.appendChild(botonAgregar);
 /*
@@ -368,5 +372,104 @@ fetch("https://jsonplaceholder.typicode.com/users")
   })
   .catch(error => console.error("Error al obtener los usuarios:", error));
 /*
-
+19. Filtrar y mostrar datos
+Filtra los usuarios cuya dirección termine en .biz y muéstralos en tarjetas Bootstrap.
 */
+fetch("https://jsonplaceholder.typicode.com/users")
+  .then(response => response.json())
+  .then(users => {
+    const usuariosBiz = users.filter(user => user.email.endsWith(".biz"));
+    const contenedorBiz = document.createElement("div");
+    contenedorBiz.className = "container my-5";
+    const filaBiz = document.createElement("div");
+    filaBiz.className = "row";
+    usuariosBiz.forEach(user => {
+      const columna = document.createElement("div");
+      columna.className = "col-md-4 mb-4";
+      const card = document.createElement("div");
+      card.className = "card";
+      const cardBody = document.createElement("div");
+      cardBody.className = "card-body";
+      const cardTitle = document.createElement("h5");
+      cardTitle.className = "card-title";
+      cardTitle.textContent = user.name;
+      const cardEmail = document.createElement("p");
+      cardEmail.className = "card-text";
+      cardEmail.textContent = user.email;
+      cardBody.appendChild(cardTitle);
+      cardBody.appendChild(cardEmail);
+      card.appendChild(cardBody);
+      columna.appendChild(card);
+      filaBiz.appendChild(columna);
+    });
+    contenedorBiz.appendChild(filaBiz);
+    document.body.appendChild(contenedorBiz);
+  }
+  )
+  .catch(error => console.error("Error al obtener los usuarios:", error));
+/*
+20. Ejercicio final: mini “visor de usuarios”
+Combina todo lo aprendido:
+1. Un botón “Cargar usuarios”.
+2. Al pulsarlo, realiza un fetch() a https://jsonplaceholder.typicode.com/users.
+3. Muestra tarjetas (card) con nombre, correo, y ciudad.
+4. Incluye un botón dentro de cada tarjeta para eliminarla del DOM.
+5. Incluye otro botón general para clonar el último usuario mostrado.
+
+Usa createElement(), appendChild(), remove(), cloneNode(), y Bootstrap para los estilos.
+*/
+const botonCargar = document.createElement("button");
+botonCargar.className = "btn btn-primary my-3";
+botonCargar.textContent = "Cargar usuarios";
+document.body.appendChild(botonCargar);
+const contenedorUsuarios = document.createElement("div");
+contenedorUsuarios.className = "container my-3";
+document.body.appendChild(contenedorUsuarios);
+const botonClonarUsuario = document.createElement("button");
+botonClonarUsuario.className = "btn btn-secondary my-3";
+botonClonarUsuario.textContent = "Clonar último usuario";
+document.body.appendChild(botonClonarUsuario);
+botonCargar.addEventListener("click", () => {
+  fetch("https://jsonplaceholder.typicode.com/users")
+    .then(response => response.json())
+    .then(users => {
+      contenedorUsuarios.innerHTML = "";
+      users.forEach(user => {
+        const card = document.createElement("div");
+        card.className = "card my-3";
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        const cardTitle = document.createElement("h5");
+        cardTitle.className = "card-title";
+        cardTitle.textContent = user.name;
+        const cardEmail = document.createElement("p");
+        cardEmail.className = "card-text";
+        cardEmail.textContent = `Email: ${user.email}`;
+        const cardCity = document.createElement("p");
+        cardCity.className = "card-text";
+        cardCity.textContent = `City: ${user.address.city}`;
+        const botonEliminar = document.createElement("button");
+        botonEliminar.className = "btn btn-danger";
+        botonEliminar.textContent = "Eliminar usuario";
+        botonEliminar.addEventListener("click", () => {
+          card.remove();
+        });
+        cardBody.appendChild(cardTitle);
+        cardBody.appendChild(cardEmail);
+        cardBody.appendChild(cardCity);
+        cardBody.appendChild(botonEliminar);
+        card.appendChild(cardBody);
+        contenedorUsuarios.appendChild(card);
+      }
+      );
+    })
+    .catch(error => console.error("Error al obtener los usuarios:", error));
+});
+botonClonarUsuario.addEventListener("click", () => {
+  const tarjetas = contenedorUsuarios.getElementsByClassName("card");
+  if (tarjetas.length > 0) {
+    const ultimoUsuario = tarjetas[tarjetas.length - 1];
+    const clon = ultimoUsuario.cloneNode(true);
+    contenedorUsuarios.appendChild(clon);
+  }
+});
